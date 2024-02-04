@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 
+usage_and_exit () {
+  echo "Usage: video2binary <infile> <outfile>"
+  exit $1
+}
+
+if [ $# != 2 ]; then
+  usage_and_exit 1
+fi
+
 # later: --tmpdir
 tmpfile_gzipped=$(mktemp binary2mp4.gz.XXXXXXXXXX)
 
-infile=output.mp4
-outfile=restored_input.raw
+infile="$1"
+outfile="$2"
 gzip=/usr/bin/gzip
 ffmpeg=/usr/bin/ffmpeg
 pixel_format=rgb24

@@ -1,16 +1,50 @@
+teardown() {
+    rm -f test/LICENSE.mp4 test/LICENSE_restored
+    rm -f test/9.mp4 test/9.txt_restored
+    rm -f test/42.mp4 test/42.txt_restored
+    rm -f test/16777216.mp4 test/16777216.txt_restored
+}
+
 @test "can run binary2video" {
-    ./binary2video LICENSE LICENSE.mp4
+    ./binary2video | grep "Usage:"
 }
 
 @test "can run video2binary" {
-    ./video2binary LICENSE.mp4 LICENSE_restored
+    ./video2binary | grep "Usage:"
 }
 
 @test "convert and restore file LICENSE" {
     echo "********** convert **********"
-    ./binary2video LICENSE LICENSE.mp4
+    ./binary2video LICENSE test/LICENSE.mp4
     echo "********** restore **********"
-    ./video2binary LICENSE.mp4 LICENSE_restored
+    ./video2binary test/LICENSE.mp4 test/LICENSE_restored
     echo "********** compare **********"
-    cmp --silent LICENSE LICENSE_restored
+    cmp --silent LICENSE test/LICENSE_restored
+}
+
+@test "convert and restore file test/9.txt" {
+    echo "********** convert **********"
+    ./binary2video test/9.txt test/9.mp4
+    echo "********** restore **********"
+    ./video2binary test/9.mp4 test/9.txt_restored
+    echo "********** compare **********"
+    cmp --silent test/9.txt test/9.txt_restored
+}
+
+@test "convert and restore file test/42.txt" {
+    echo "********** convert **********"
+    ./binary2video test/42.txt test/42.mp4
+    echo "********** restore **********"
+    ./video2binary test/42.mp4 test/42.txt_restored
+    echo "********** compare **********"
+    cmp --silent test/42.txt test/42.txt_restored
+}
+
+@test "convert and restore file test/16777216.txt" {
+    echo "********** convert **********"
+    ./binary2video test/16777216.txt test/16777216.mp4
+    echo "********** restore **********"
+    ./video2binary test/16777216.mp4 test/16777216.txt_restored
+    echo "********** compare **********"
+    cmp --silent test/16777216.txt test/16777216.txt_restored
 }

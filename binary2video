@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 
+usage_and_exit () {
+  echo "Usage: binary2video <infile> <outfile>"
+  exit $1
+}
+
+if [ $# != 2 ]; then
+  usage_and_exit 1
+fi
+
 # later: --tmpdir
 tmpfile_gzipped=$(mktemp binary2mp4.gz.XXXXXXXXXX)
 tmpfile_padded=$(mktemp binary2mp4.padded.XXXXXXXXXX)
 
-infile=input.raw
-outfile=output.mp4
+infile="$1"
+outfile="$2"
 gzip=/usr/bin/gzip
 ffmpeg=/usr/bin/ffmpeg
 width=320
@@ -24,7 +33,7 @@ echo "gzipped file has $size_gzipped bytes"
 padding_needed=$(($blocksize - ($size_gzipped % $blocksize)))
 echo "padding needed: $padding_needed bytes"
 
-(cat ${tmpfile_gzipped}; dd if=/dev/zero bs=$padding_needed count=1 status=none) > ${tmpfile_padded}
+(cat ${tmpfile_gzipped}; dd if=/dev/zero bs=$padding_needed count=1 status=none) >> ${tmpfile_padded}
 size_padded=$(stat --format=%s ${tmpfile_padded})
 echo "padded file has $size_padded bytes"
 
