@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# later: --tmpdir
+tmpfile_gzipped=$(mktemp binary2mp4.gz.XXXXXXXXXX)
+
+infile=output.mp4
+outfile=restored_input.raw
+gzip=/usr/bin/gzip
+ffmpeg=/usr/bin/ffmpeg
+pixel_format=rgb24
+
+$ffmpeg -y -hide_banner -loglevel error \
+  -i "${infile}" -f rawvideo -pix_fmt rgb24 "${tmpfile_gzipped}"
+size_gzipped=$(stat --format=%s ${tmpfile_gzipped})
+echo "gzipped file has $size_gzipped bytes"
+
+$gzip -d -c "${tmpfile_gzipped}" > ${outfile}
+echo "output file has $(stat --format=%s ${outfile}) bytes"
+md5sum ${outfile}
+
+rm ${tmpfile_gzipped}

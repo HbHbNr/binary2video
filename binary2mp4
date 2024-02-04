@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# later: --tmpdir
+tmpfile_gzipped=$(mktemp binary2mp4.gz.XXXXXXXXXX)
+tmpfile_padded=$(mktemp binary2mp4.padded.XXXXXXXXXX)
+
+infile=input.raw
+outfile=output.mp4
+gzip=/usr/bin/gzip
+ffmpeg=/usr/bin/ffmpeg
+width=320
+height=240
+framerate=1
+pixel_format=rgb24
+blocksize=$(($width * $height * 3))
+echo "blocksize is $blocksize bytes"
+
+md5sum ${infile}
+
+$gzip --fast --to-stdout ${infile} > ${tmpfile_gzipped}
+size_gzipped=$(stat --format=%s ${tmpfile_gzipped})
+echo "gzipped file has $size_gzipped bytes"
+
+padding_needed=$(($blocksize - ($size_gzipped % $blocksize)))
+echo "padding needed: $padding_needed bytes"
+
+(cat ${tmpfile_gzipped}; dd if=/dev/zero bs=$padding_needed count=1 status=none) > ${tmpfile_padded}
+size_padded=$(stat --format=%s ${tmpfile_padded})
+echo "padded file has $size_padded bytes"
+
+$ffmpeg -y -hide_banner -loglevel error \
+  -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+  -c:v libvpx-vp9 -lossless 1 \
+  "${outfile}"
+
+echo "output file has $(stat --format=%s ${outfile}) bytes"
+
+rm ${tmpfile_gzipped}
+rm ${tmpfile_padded}
