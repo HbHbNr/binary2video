@@ -1,25 +1,40 @@
 #!/usr/bin/env bash
 
 usage_and_exit () {
-  echo "Usage: binary2video <infile> <outfile>"
-  exit $1
+    echo "Usage: binary2video [-f fps] [-w width] [-h height] <infile> <outfile>"
+    exit $1
 }
 
-if [ $# != 2 ]; then
-  usage_and_exit 1
+if [ $# = 1 -a x$1 = 'x--help' ]; then
+    usage_and_exit 0
 fi
 
-# later: --tmpdir
-tmpfile_gzipped=$(mktemp binary2mp4.gz.XXXXXXXXXX)
-tmpfile_padded=$(mktemp binary2mp4.padded.XXXXXXXXXX)
-
-infile="$1"
-outfile="$2"
 gzip=/usr/bin/gzip
 ffmpeg=/usr/bin/ffmpeg
 width=320
 height=240
 framerate=1
+while getopts 'f:w:h:' option; do
+    case $option in
+    f) framerate="$OPTARG";;
+    w) width="$OPTARG";;
+    h) height="$OPTARG";;
+    ?) usage_and_exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
+# echo $framerate $width $height $1 $2
+# exit 0
+
+if [ $# != 2 ]; then
+    usage_and_exit 1
+fi
+
+tmpfile_gzipped=$(mktemp --tmpdir binary2video.gz.XXXXXXXXXX)
+tmpfile_padded=$(mktemp --tmpdir binary2video.padded.XXXXXXXXXX)
+
+infile="$1"
+outfile="$2"
 pixel_format=rgb24
 blocksize=$(($width * $height * 3))
 echo "blocksize is $blocksize bytes"
@@ -38,9 +53,9 @@ size_padded=$(stat --format=%s ${tmpfile_padded})
 echo "padded file has $size_padded bytes"
 
 $ffmpeg -y -hide_banner -loglevel error \
-  -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
-  -c:v libvpx-vp9 -lossless 1 \
-  "${outfile}"
+    -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+    -c:v libvpx-vp9 -lossless 1 \
+    "${outfile}"
 
 echo "output file has $(stat --format=%s ${outfile}) bytes"
 

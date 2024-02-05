@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 
 usage_and_exit () {
-  echo "Usage: video2binary <infile> <outfile>"
-  exit $1
+    echo "Usage: video2binary <infile> <outfile>"
+    exit $1
 }
 
-if [ $# != 2 ]; then
-  usage_and_exit 1
+if [ $# = 1 -a x$1 = 'x--help' ]; then
+   usage_and_exit 0
 fi
 
-# later: --tmpdir
-tmpfile_gzipped=$(mktemp binary2mp4.gz.XXXXXXXXXX)
+if [ $# != 2 ]; then
+    usage_and_exit 1
+fi
+
+tmpfile_gzipped=$(mktemp --tmpdir video2binary.gz.XXXXXXXXXX)
 
 infile="$1"
 outfile="$2"
@@ -19,7 +22,7 @@ ffmpeg=/usr/bin/ffmpeg
 pixel_format=rgb24
 
 $ffmpeg -y -hide_banner -loglevel error \
-  -i "${infile}" -f rawvideo -pix_fmt rgb24 "${tmpfile_gzipped}"
+    -i "${infile}" -f rawvideo -pix_fmt rgb24 "${tmpfile_gzipped}"
 size_gzipped=$(stat --format=%s ${tmpfile_gzipped})
 echo "gzipped file has $size_gzipped bytes"
 
