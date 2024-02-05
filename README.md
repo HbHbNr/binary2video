@@ -8,7 +8,7 @@ Convert binary files to videos, e.g. MP4 or WebM, and back.
 ```
 binary2video [-f fps] [-w width] [-h height] <infile> <outfile>
 
--f fps      Set framrate, default 60.
+-f fps      Set framerate, i.e. frame per second; default 1.
 
 -w width    Set width, default 320.
 
