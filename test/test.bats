@@ -1,19 +1,35 @@
 teardown() {
-    rm -f test/LICENSE.mp4 test/LICENSE_restored
-    rm -f test/9.mp4 test/9.txt_restored
-    rm -f test/42.mp4 test/42.txt_restored
-    rm -f test/16777216.mp4 test/16777216.txt_restored
+    rm -f test/LICENSE.{mp4,webm,avi} test/LICENSE_restored
+    rm -f test/9.{mp4,webm,avi} test/9.txt_restored
+    rm -f test/42.{mp4,webm,avi} test/42.txt_restored
+    rm -f test/16777216.{mp4,webm,avi} test/16777216.txt_restored
 }
 
 @test "can run binary2video" {
-    ./binary2video | grep "Usage:"
+    run ./binary2video
+    [ "$status" -eq 1 ]
+    [[ "${lines[0]}" == "Usage:"* ]]
+}
+
+@test "can run binary2video --help" {
+    run ./binary2video --help
+    [ "$status" -eq 0 ]
+    [[ "${lines[0]}" == "Usage:"* ]]
 }
 
 @test "can run video2binary" {
-    ./video2binary | grep "Usage:"
+    run ./video2binary
+    [ "$status" -eq 1 ]
+    [[ "${lines[0]}" == "Usage:"* ]]
 }
 
-@test "convert and restore file LICENSE" {
+@test "can run video2binary --help" {
+    run ./video2binary --help
+    [ "$status" -eq 0 ]
+    [[ "${lines[0]}" == "Usage:"* ]]
+}
+
+@test "convert to MP4 and restore file LICENSE" {
     echo "********** convert **********"
     ./binary2video LICENSE test/LICENSE.mp4
     echo "********** restore **********"
@@ -22,25 +38,25 @@ teardown() {
     cmp --silent LICENSE test/LICENSE_restored
 }
 
-@test "convert and restore file test/9.txt" {
+@test "convert To WebM and restore file test/9.txt" {
     echo "********** convert **********"
-    ./binary2video test/9.txt test/9.mp4
+    ./binary2video test/9.txt test/9.webm
     echo "********** restore **********"
-    ./video2binary test/9.mp4 test/9.txt_restored
+    ./video2binary test/9.webm test/9.txt_restored
     echo "********** compare **********"
     cmp --silent test/9.txt test/9.txt_restored
 }
 
-@test "convert and restore file test/42.txt" {
+@test "convert to AVI and restore file test/42.txt" {
     echo "********** convert **********"
-    ./binary2video test/42.txt test/42.mp4
+    ./binary2video test/42.txt test/42.avi
     echo "********** restore **********"
-    ./video2binary test/42.mp4 test/42.txt_restored
+    ./video2binary test/42.avi test/42.txt_restored
     echo "********** compare **********"
     cmp --silent test/42.txt test/42.txt_restored
 }
 
-@test "convert and restore file test/16777216.txt" {
+@test "convert to MP4 and restore file test/16777216.txt" {
     echo "********** convert **********"
     ./binary2video test/16777216.txt test/16777216.mp4
     echo "********** restore **********"
