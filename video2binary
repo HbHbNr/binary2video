@@ -26,8 +26,8 @@ $ffmpeg -y -hide_banner -loglevel error \
 size_gzipped=$(stat --format=%s ${tmpfile_gzipped})
 echo "gzipped file has $size_gzipped bytes"
 
-$gzip -d -c "${tmpfile_gzipped}" > ${outfile}
-echo "output file has $(stat --format=%s ${outfile}) bytes"
-md5sum ${outfile}
+$gzip -d -c "${tmpfile_gzipped}" > "${outfile}"
+echo "output file has $(stat --format=%s "${outfile}") bytes"
+md5sum "${outfile}"
 
 rm ${tmpfile_gzipped}

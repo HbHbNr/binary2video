@@ -39,9 +39,9 @@ pixel_format=rgb24
 blocksize=$(($width * $height * 3))
 echo "blocksize is $blocksize bytes"
 
-md5sum ${infile}
+md5sum "${infile}"
 
-$gzip --fast --to-stdout ${infile} > ${tmpfile_gzipped}
+$gzip --fast --to-stdout "${infile}" > ${tmpfile_gzipped}
 size_gzipped=$(stat --format=%s ${tmpfile_gzipped})
 echo "gzipped file has $size_gzipped bytes"
 
@@ -57,7 +57,7 @@ $ffmpeg -y -hide_banner -loglevel error \
     -c:v libvpx-vp9 -lossless 1 \
     "${outfile}"
 
-echo "output file has $(stat --format=%s ${outfile}) bytes"
+echo "output file has $(stat --format=%s "${outfile}") bytes"
 
 rm ${tmpfile_gzipped}
 rm ${tmpfile_padded}
