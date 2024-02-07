@@ -52,10 +52,26 @@ echo "padding needed: $padding_needed bytes"
 size_padded=$(stat --format=%s ${tmpfile_padded})
 echo "padded file has $size_padded bytes"
 
+# vp9 works in mp4/webm/avi/mkv
 $ffmpeg -y -hide_banner -loglevel error \
     -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
     -c:v libvpx-vp9 -lossless 1 \
     "${outfile}"
+# ffv1 version 1 works only in mkv/avi
+# $ffmpeg -y -hide_banner -loglevel error \
+#     -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+#     -c:v ffv1 -level 1 -coder 1 -context 1 -g 1 \
+#     "${outfile}"
+# ffv1 version 3 works only in mkv/avi
+# $ffmpeg -y -hide_banner -loglevel error \
+#     -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+#     -c:v ffv1 -level 3 -threads 8 -coder 1 -context 1 -g 1 -slices 24 -slicecrc 1 \
+#     "${outfile}"
+# h.264 works in mp4/avi/mkv
+# $ffmpeg -y -hide_banner -loglevel error \
+#     -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+#     -c:v libx264rgb -preset ultrafast -qp 0 \
+#     "${outfile}"
 
 echo "output file has $(stat --format=%s "${outfile}") bytes"
 
