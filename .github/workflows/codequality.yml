@@ -10,7 +10,7 @@ jobs:
     - name: Install BATS
       run: |
         sudo apt-get update
-        sudo apt-get install --yes --no-install-recommends bats
+        sudo apt-get install --yes --no-install-recommends bats ffmpeg
     - uses: actions/checkout@v3
     - name: Run BATS tests
       run: |
