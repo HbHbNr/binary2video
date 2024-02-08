@@ -6,31 +6,38 @@ Convert binary files to videos, e.g. MP4 or WebM, and back.
 ### binary2video
 
 ```
-binary2video [-f fps] [-w width] [-h height] <infile> <outfile>
+binary2video [-f fps] [-w width] [-h height] [-v] infile outfile
 
--f fps      Set framerate, i.e. frame per second; default 1.
+-f fps      Set framerate, i.e. frames per second; default 1.
 
 -w width    Set width, default 320.
 
 -h height   Set height, default 240.
 
-<infile>    The name and path of the binary file which should be converted into
+-c codec    Set video codec: h.264, vp9, ffv1, or ffv1.3. Default is vp9.
+
+-v          Be verbose.
+
+infile      The name and path of the binary file which should be converted into
             a video.
 
-<outfile>   The name and path of the video file which should be created. The suffix
+outfile     The name and path of the video file which should be created. The suffix
             of the file will determine the video container type. The container must
-            be supported by FFmpeg, for example .mp4, .webm, .avi, etc.
+            be supported by FFmpeg, for example .mp4, .webm, .avi, .mkv, etc. Not
+            all video codecs work with all container formats, though.
 ```
 
 ### video2binary
 
 ```
-video2binary <infile> <outfile>
+video2binary [-v] infile outfile
 
-<infile>    The name and path of the video file from which the original binary file
+-v          Be verbose.
+
+infile      The name and path of the video file from which the original binary file
             should be extracted.
 
-<outfile>   The name and path of the binary file to which the original data should be
+outfile     The name and path of the binary file to which the original data should be
             restored to.
 ```
 ## Internal process

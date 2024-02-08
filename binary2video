@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage_and_exit () {
-    echo "Usage: binary2video [-f fps] [-w width] [-h height] <infile> <outfile>"
+    echo "Usage: binary2video [-f fps] [-w width] [-h height] [-c codec] [-v] infile outfile"
     exit $1
 }
 

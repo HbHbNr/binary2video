@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage_and_exit () {
-    echo "Usage: video2binary <infile> <outfile>"
+    echo "Usage: video2binary [-v] infile outfile"
     exit $1
 }
 
