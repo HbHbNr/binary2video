@@ -1,38 +1,60 @@
+[![GPL 3.0](https://hbhbnr.github.io/badges/license-GPL--3.0-blue.svg)](LICENSE)
+[![GitHub Workflow Status](https://github.com/hbhbnr/binary2video/actions/workflows/codequality.yml/badge.svg)](https://github.com/hbhbnr/binary2video/actions/workflows/codequality.yml)
+
 # binary2video
-Convert binary files to videos, e.g. MP4 or WebM, and back.
+Convert binary files to videos, e.g. MP4/WebM/AVI/MKV, and back. Supports h.264, VP9, FFV1 level 1 and 3.
 
 ## Usage
 
 ### binary2video
 
 ```
-binary2video [-f fps] [-w width] [-h height] <infile> <outfile>
+binary2video [-f fps] [-w width] [-h height] [-v] infile outfile
 
--f fps      Set framerate, i.e. frame per second; default 1.
+-f fps      Set framerate, i.e. frames per second; default 1.
 
 -w width    Set width, default 320.
 
 -h height   Set height, default 240.
 
-<infile>    The name and path of the binary file which should be converted into
+-c codec    Set video codec: h264, vp9, ffv1, or ffv1l3. Default is vp9.
+
+-v          Be verbose.
+
+infile      The name and path of the binary file which should be converted into
             a video.
 
-<outfile>   The name and path of the video file which should be created. The suffix
+outfile     The name and path of the video file which should be created. The suffix
             of the file will determine the video container type. The container must
-            be supported by FFmpeg, for example .mp4, .webm, .avi, etc.
+            be supported by FFmpeg, for example .mp4, .webm, .avi, .mkv, etc. Not
+            all video codecs work with all container formats, though.
 ```
 
 ### video2binary
 
 ```
-video2binary <infile> <outfile>
+video2binary [-v] infile outfile
 
-<infile>    The name and path of the video file from which the original binary file
+-v          Be verbose.
+
+infile      The name and path of the video file from which the original binary file
             should be extracted.
 
-<outfile>   The name and path of the binary file to which the original data should be
+outfile     The name and path of the binary file to which the original data should be
             restored to.
 ```
+
+## Compatibility matrix
+
+| Container vs. Codec | **h264** | **vp9** | **ffv1** | **ffv1l3** |
+|--------------------:|:--------:|:-------:|:--------:|:----------:|
+| **.mp4**            | ✓        | ✓       |          |            |
+| **.webm**           |          | ✓       |          |            |
+| **.avi**            | ✓        | ✓       | ✓        | ✓          |
+| **.mkv**            | ✓        | ✓       | ✓        | ✓          |
+
+Other containers have not been tested and may also work.
+
 ## Internal process
 
 ### Conversion from binary file to video file
@@ -60,5 +82,6 @@ Run the unit tests with
 
 ## References
 * FFmpeg Formats Documentation: [Demuxers - rawvideo](https://ffmpeg.org/ffmpeg-formats.html#rawvideo)
+* FFmpeg FFV1: [FFV1 encoding cheatsheet](https://trac.ffmpeg.org/wiki/Encode/FFV1)
 * AntumDeluge: [List of Lossless FFmpeg Video Encoders](https://antumdeluge.wordpress.com/lossless-ffmpeg-video-encoders/)
 * Fufu Fang: [Converting-Arbitrary-Data-To-Video](https://github.com/fangfufu/Converting-Arbitrary-Data-To-Video)

@@ -1,33 +1,66 @@
 #!/usr/bin/env bash
 
 usage_and_exit () {
-    echo "Usage: binary2video [-f fps] [-w width] [-h height] <infile> <outfile>"
+    echo "Usage: binary2video [-f fps] [-w width] [-h height] [-c (vp9 | h264 | ffv1 | ffv1l3)] [-v] infile outfile"
+    echo "  Defaults: fps=1 width=320 height=240 codec=vp9"
     exit $1
 }
+check_executable_or_exit() {
+    if [ ! -x $1 ]; then
+        echo "error: no $(basename $1) at $gzip"
+        exit 2
+    fi
+}
 
-if [ $# = 1 -a x$1 = 'x--help' ]; then
+if [ \( $# -eq 1 \) -a \( "$1" = '--help' \) ]; then
     usage_and_exit 0
 fi
 
+# check needed binaries
 gzip=/usr/bin/gzip
+check_executable_or_exit $gzip
 ffmpeg=/usr/bin/ffmpeg
+check_executable_or_exit $ffmpeg
+
+# check parameters
 width=320
 height=240
 framerate=1
-while getopts 'f:w:h:' option; do
-    case $option in
+codec=vp9
+verbose=0
+while getopts 'f:w:h:c:v' option; do
+    case "$option" in
     f) framerate="$OPTARG";;
     w) width="$OPTARG";;
     h) height="$OPTARG";;
+    c) codec="$OPTARG";;
+    v) verbose=1;;
     ?) usage_and_exit 1;;
     esac
 done
 shift $(($OPTIND - 1))
-# echo $framerate $width $height $1 $2
-# exit 0
+
+# verify codec
+case "$codec" in
+    h264) ;;
+    vp9) ;;
+    ffv1) ;;
+    ffv1l3) ;;
+    *)
+        echo "error: unknown codec '$codec'"
+        usage_and_exit 3
+        ;;
+esac
 
 if [ $# != 2 ]; then
     usage_and_exit 1
+fi
+if [ ! -r "$1" ]; then
+    echo "error: file '$1' does not exist or is not readable"
+    exit 4
+fi
+if [ $verbose = 1 ]; then
+    echo "parameters: fps=$framerate width=$width height=$height codec=$codec"
 fi
 
 tmpfile_gzipped=$(mktemp --tmpdir binary2video.gz.XXXXXXXXXX)
@@ -37,27 +70,57 @@ infile="$1"
 outfile="$2"
 pixel_format=rgb24
 blocksize=$(($width * $height * 3))
-echo "blocksize is $blocksize bytes"
+if [ $verbose = 1 ]; then
+    echo "blocksize is $blocksize bytes"
+    echo -n "input file MD5: "
+    md5sum "${infile}" | cut -d\  -f1
+fi
 
-md5sum ${infile}
-
-$gzip --fast --to-stdout ${infile} > ${tmpfile_gzipped}
+$gzip --fast --to-stdout "${infile}" > ${tmpfile_gzipped}
 size_gzipped=$(stat --format=%s ${tmpfile_gzipped})
-echo "gzipped file has $size_gzipped bytes"
+if [ $verbose = 1 ]; then
+    echo "gzipped file has $size_gzipped bytes"
+fi
 
 padding_needed=$(($blocksize - ($size_gzipped % $blocksize)))
-echo "padding needed: $padding_needed bytes"
+if [ $verbose = 1 ]; then
+    echo "padding needed: $padding_needed bytes"
+fi
 
 (cat ${tmpfile_gzipped}; dd if=/dev/zero bs=$padding_needed count=1 status=none) >> ${tmpfile_padded}
 size_padded=$(stat --format=%s ${tmpfile_padded})
-echo "padded file has $size_padded bytes"
+if [ $verbose = 1 ]; then
+    echo "padded file has $size_padded bytes"
+fi
 
-$ffmpeg -y -hide_banner -loglevel error \
-    -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
-    -c:v libvpx-vp9 -lossless 1 \
-    "${outfile}"
+if [ $codec = "vp9" ]; then
+    $ffmpeg -y -hide_banner -loglevel error \
+        -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+        -c:v libvpx-vp9 -lossless 1 \
+        "${outfile}"
+elif [ $codec = "h264" ]; then
+    $ffmpeg -y -hide_banner -loglevel error \
+        -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+        -c:v libx264rgb -preset ultrafast -qp 0 \
+        "${outfile}"
+elif [ $codec = "ffv1" ]; then
+    $ffmpeg -y -hide_banner -loglevel error \
+        -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+        -c:v ffv1 -level 1 -coder 1 -context 1 -g 1 \
+        "${outfile}"
+elif [ $codec = "ffv1l3" ]; then
+    $ffmpeg -y -hide_banner -loglevel error \
+        -f rawvideo -pixel_format $pixel_format -video_size "${width}x${height}" -framerate ${framerate} -i "${tmpfile_padded}" \
+        -c:v ffv1 -level 3 -threads 8 -coder 1 -context 1 -g 1 -slices 24 -slicecrc 1 \
+        "${outfile}"
+else
+    echo "error: unknown codec '$codec'"
+    usage_and_exit 5
+fi
 
-echo "output file has $(stat --format=%s ${outfile}) bytes"
+if [ $verbose = 1 ]; then
+    echo "output file has $(stat --format=%s "${outfile}") bytes"
+fi
 
 rm ${tmpfile_gzipped}
 rm ${tmpfile_padded}

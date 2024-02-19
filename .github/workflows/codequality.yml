@@ -1,0 +1,17 @@
+name: Code quality
+
+on: [push]
+
+jobs:
+
+  runtests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install BATS and FFmpeg
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends bats ffmpeg
+    - uses: actions/checkout@v3
+    - name: Run BATS tests
+      run: |
+        bats test/test.bats
