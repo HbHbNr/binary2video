@@ -4,30 +4,59 @@ usage_and_exit () {
     echo "Usage: video2binary [-v] infile outfile"
     exit $1
 }
+check_executable_or_exit() {
+    if [ ! -x $1 ]; then
+        echo "error: no $(basename $1) at $gzip"
+        exit 2
+    fi
+}
 
-if [ $# = 1 -a x$1 = 'x--help' ]; then
+if [ \( $# -eq 1 \) -a \( "$1" = '--help' \) ]; then
    usage_and_exit 0
 fi
 
+# check needed binaries
+gzip=/usr/bin/gzip
+check_executable_or_exit $gzip
+ffmpeg=/usr/bin/ffmpeg
+check_executable_or_exit $ffmpeg
+
+# check parameters
+verbose=0
+while getopts 'v' option; do
+    case "$option" in
+    v) verbose=1;;
+    ?) usage_and_exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
+
 if [ $# != 2 ]; then
     usage_and_exit 1
+fi
+if [ ! -r "$1" ]; then
+    echo "error: file '$1' does not exist or is not readable"
+    exit 4
 fi
 
 tmpfile_gzipped=$(mktemp --tmpdir video2binary.gz.XXXXXXXXXX)
 
 infile="$1"
 outfile="$2"
-gzip=/usr/bin/gzip
-ffmpeg=/usr/bin/ffmpeg
 pixel_format=rgb24
 
 $ffmpeg -y -hide_banner -loglevel error \
     -i "${infile}" -f rawvideo -pix_fmt rgb24 "${tmpfile_gzipped}"
 size_gzipped=$(stat --format=%s ${tmpfile_gzipped})
-echo "gzipped file has $size_gzipped bytes"
+if [ $verbose = 1 ]; then
+    echo "gzipped file has $size_gzipped bytes"
+fi
 
 $gzip -d -c "${tmpfile_gzipped}" > "${outfile}"
-echo "output file has $(stat --format=%s "${outfile}") bytes"
-md5sum "${outfile}"
+if [ $verbose = 1 ]; then
+    echo "output file has $(stat --format=%s "${outfile}") bytes"
+    echo -n "output file MD5: "
+    md5sum "${outfile}" | cut -d\  -f1
+fi
 
 rm ${tmpfile_gzipped}

@@ -17,7 +17,7 @@ binary2video [-f fps] [-w width] [-h height] [-v] infile outfile
 
 -h height   Set height, default 240.
 
--c codec    Set video codec: h.264, vp9, ffv1, or ffv1.3. Default is vp9.
+-c codec    Set video codec: h264, vp9, ffv1, or ffv1l3. Default is vp9.
 
 -v          Be verbose.
 
@@ -43,6 +43,18 @@ infile      The name and path of the video file from which the original binary f
 outfile     The name and path of the binary file to which the original data should be
             restored to.
 ```
+
+## Compatibility matrix
+
+| Container vs. Codec | **h264** | **vp9** | **ffv1** | **ffv1l3** |
+|--------------------:|:--------:|:-------:|:--------:|:----------:|
+| **.mp4**            | ✓        | ✓       |          |            |
+| **.webm**           |          | ✓       |          |            |
+| **.avi**            | ✓        | ✓       | ✓        | ✓          |
+| **.mkv**            | ✓        | ✓       | ✓        | ✓          |
+
+Other containers have not been tested and may also work.
+
 ## Internal process
 
 ### Conversion from binary file to video file
@@ -70,5 +82,6 @@ Run the unit tests with
 
 ## References
 * FFmpeg Formats Documentation: [Demuxers - rawvideo](https://ffmpeg.org/ffmpeg-formats.html#rawvideo)
+* FFmpeg FFV1: [FFV1 encoding cheatsheet](https://trac.ffmpeg.org/wiki/Encode/FFV1)
 * AntumDeluge: [List of Lossless FFmpeg Video Encoders](https://antumdeluge.wordpress.com/lossless-ffmpeg-video-encoders/)
 * Fufu Fang: [Converting-Arbitrary-Data-To-Video](https://github.com/fangfufu/Converting-Arbitrary-Data-To-Video)
