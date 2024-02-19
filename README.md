@@ -2,7 +2,7 @@
 [![GitHub Workflow Status](https://github.com/hbhbnr/binary2video/actions/workflows/codequality.yml/badge.svg)](https://github.com/hbhbnr/binary2video/actions/workflows/codequality.yml)
 
 # binary2video
-Convert binary files to videos, e.g. MP4 or WebM, and back.
+Convert binary files to videos, e.g. MP4/WebM/AVI/MKV, and back. Supports h.264, VP9, FFV1 level 1 and 3.
 
 ## Usage
 
