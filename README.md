@@ -54,15 +54,15 @@ Copy `binary2video` and `video2binary` to a directory of your path, for example 
 
 Encode `LICENSE` into a .webm video with default settings:
 
-    ./binary2video LICENSE LICENSE.webm
+    binary2video LICENSE LICENSE.webm
 
 Decode `LICENSE_restored` from the .webm video:
 
-    ./video2binary LICENSE.webm LICENSE_restored
+    video2binary LICENSE.webm LICENSE_restored
 
 Verify the original file and the restored file are identical:
 
-    $ md5sum LICENSE LICENSE_restored
+    md5sum LICENSE LICENSE_restored
     1ebbd3e34237af26da5dc08a4e440464  LICENSE
     1ebbd3e34237af26da5dc08a4e440464  LICENSE_restored
 
@@ -71,15 +71,15 @@ Verify the original file and the restored file are identical:
 Encode [KeePass-2.56.zip](https://keepass.info/) into a .mp4 video with 0.5 frames
 per second, 640 x 360 pixels frame size, using the h.264 codec:
 
-    ./binary2video -f 0.5 -w 640 -h 360 -c h264 KeePass-2.56.zip KeePass-2.56.zip.mp4
+    binary2video -f 0.5 -w 640 -h 360 -c h264 KeePass-2.56.zip KeePass-2.56.zip.mp4
 
 Decode `KeePass-2.56.zip_restored` from .mp4 video:
 
-    ./video2binary KeePass-2.56.zip.mp4 KeePass-2.56.zip_restored
+    video2binary KeePass-2.56.zip.mp4 KeePass-2.56.zip_restored
 
 Verify the original file and the restored file are identical:
 
-    $ md5sum KeePass-2.56.zip KeePass-2.56.zip_restored
+    md5sum KeePass-2.56.zip KeePass-2.56.zip_restored
     d0c2b3155838aa7f59f35d52a5484d2e  KeePass-2.56.zip
     d0c2b3155838aa7f59f35d52a5484d2e  KeePass-2.56.zip_restored
 
